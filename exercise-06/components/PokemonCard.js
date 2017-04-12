@@ -1,6 +1,7 @@
 import React from 'react'
 import { propType } from 'graphql-anywhere'
 import gql from 'graphql-tag'
+import { graphql } from 'react-apollo'
 
 import { View, TextInput, Image } from 'react-native'
 import Button from './Button'
@@ -15,10 +16,30 @@ export const pokemonCardFragments = {
   `
 }
 
+const updatePokemon = gql`
+  mutation updatePokemon($id: ID!, $name: String!, $url: String!) {
+    updatePokemon(id: $id, name: $name, url: $url) {
+      id
+      name
+      url
+    }
+  }
+`
+
+const deletePokemon = gql`
+  mutation deletePokemon($id: ID!) {
+    deletePokemon(id: $id) {
+      id
+    }
+  }
+`
+
 class PokemonCard extends React.Component {
 
   static propTypes = {
     pokemon: propType(pokemonCardFragments.pokemon).isRequired,
+    updatePokemon: React.PropTypes.func.isRequired,
+    deletePokemon: React.PropTypes.func.isRequired,
   }
 
   state = {
@@ -85,18 +106,38 @@ class PokemonCard extends React.Component {
     )
   }
 
+  static fragments = {
+    pokemon: gql`
+      fragment PokemonCardPokemon on Pokemon {
+        id
+        url
+        name
+      }
+    `
+  }
+
+
+
   canUpdate = () => {
     return this.state.name && this.state.url &&
       (this.props.pokemon.name !== this.state.name || this.props.pokemon.url !== this.state.url)
   }
 
-  handleUpdate = () => {
+  handleUpdate = async () => {
+    await this.props.updatePokemon({variables: { id: this.props.pokemon.id, name: this.state.name, url: this.state.url }})
 
+    Actions.pokedex()
   }
 
-  handleDelete = () => {
+  handleDelete = async () => {
+    await this.props.deletePokemon({variables: { id: this.props.pokemon.id }})
 
+    Actions.pokedex()
   }
 }
 
-export default PokemonCard
+const PokemonCardWithMutations =  graphql(deletePokemon, {name : 'deletePokemon'})(
+  graphql(updatePokemon, {name: 'updatePokemon'})(PokemonCard)
+)
+
+export default PokemonCardWithMutations
