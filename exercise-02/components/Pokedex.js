@@ -4,9 +4,24 @@ import { graphql } from 'react-apollo'
 import CustomText from './CustomText'
 import gql from 'graphql-tag'
 
-export default class Pokedex extends React.Component {
+class Pokedex extends React.Component {
+  static propTypes = {
+    data: React.PropTypes.shape({
+      loading: React.PropTypes.bool,
+      error: React.PropTypes.object,
+      Trainer: React.PropTypes.object,
+    }).isRequired,
+  }
 
   render () {
+    if (this.props.data.error) {
+      console.log(this.props.data.error)
+      return (<CustomText style={{marginTop: 64}}>An unexpected error occurred</CustomText>)
+    }
+
+    if (this.props.data.loading || !this.props.data.Trainer) {
+      return (<CustomText style={{marginTop: 64}}>Loading</CustomText>)
+    }
 
     return (
       <View style={{flex: 1, backgroundColor: '#f2f2f2'}}>
@@ -18,7 +33,7 @@ export default class Pokedex extends React.Component {
             textAlign: 'center'
           }}
         >
-          Hey!
+          Hey {this.props.data.Trainer.name}!
         </CustomText>
         <CustomText
           style={{
@@ -34,3 +49,15 @@ export default class Pokedex extends React.Component {
     )
   }
 }
+
+const TrainerQuery = gql`
+  query TrainerQuery {
+    Trainer(name: "Jack Linton") {
+       name
+    }
+  }
+`
+
+const PokedexWithData = graphql(TrainerQuery)(Pokedex)
+
+export default PokedexWithData
