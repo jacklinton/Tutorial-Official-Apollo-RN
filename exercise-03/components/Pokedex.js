@@ -1,6 +1,6 @@
 import React from 'react'
 import { graphql } from 'react-apollo'
-import { View } from 'react-native'
+import { View, ScrollView } from 'react-native'
 import CustomText from './CustomText'
 import gql from 'graphql-tag'
 
@@ -46,19 +46,48 @@ class Pokedex extends React.Component {
             textAlign: 'center'
           }}
         >
-          There are 0 Pokemons in your pokedex
+          There are {this.props.data.Trainer.ownedPokemons.length} Pokemons in your pokedex
         </CustomText>
+          <ScrollView>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+              margin: 6,
+            }}
+          >
+            {this.props.data.Trainer.ownedPokemons.map((pokemon) =>
+              <PokemonPreview key={pokemon.id} pokemon={pokemon} />
+            )}
+          </View>
+        </ScrollView>
       </View>
     )
   }
 }
 
-const TrainerQuery = gql`query TrainerQuery {
-  Trainer(name: "Jack Linton") {
-     name
-   }
- }`
+const TrainerQuery = gql`
+  query TrainerQuery($name: String!) {
+    Trainer(name: $name) {
+      id
+      name
+      ownedPokemons {
+        id
+        name
+        url
+      }
+    }
+  }
+`
 
-const PokedexWithData = graphql(TrainerQuery)(Pokedex)
-
+const PokedexWithData = graphql(TrainerQuery, {
+  options: {
+      variables: {
+        name: "Jack Linton"
+      }
+    }
+  }
+)(Pokedex)
 export default PokedexWithData
