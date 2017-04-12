@@ -4,10 +4,21 @@ import gql from 'graphql-tag'
 
 import { View, TextInput, Image } from 'react-native'
 
+export const pokemonCardFragments = {
+  pokemon: gql`
+    fragment PokemonCardPokemon on Pokemon {
+      id
+      url
+      name
+    }
+  `
+}
+
+
 export default class PokemonCard extends React.Component {
 
   static propTypes = {
-    pokemon: React.PropTypes.object.isRequired,
+    pokemon: propType(pokemonCardFragments.pokemon).isRequired,
   }
 
   render () {

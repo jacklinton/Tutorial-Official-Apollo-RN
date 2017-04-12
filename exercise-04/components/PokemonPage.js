@@ -5,7 +5,16 @@ import { filter } from 'graphql-anywhere'
 
 import { View, Text } from 'react-native'
 
-import PokemonCard from './PokemonCard'
+import PokemonCard, { pokemonCardFragments } from './PokemonCard'
+
+const PokemonQuery = gql`
+  query PokemonQuery($id: ID!) {
+    Pokemon(id: $id) {
+      ...PokemonCardPokemon
+    }
+  }
+  ${pokemonCardFragments.pokemon}
+`
 
 class PokemonPage extends React.Component {
 
@@ -36,20 +45,13 @@ class PokemonPage extends React.Component {
           marginTop: 64
         }}
       >
-        <PokemonCard pokemon={pokemon}/>
+        <PokemonCard pokemon={filter(pokemonCardFragments.pokemon, pokemon)}/>
       </View>
     )
   }
 }
 
-const PokemonQuery = gql`query PokemonQuery($id: ID!) {
-    Pokemon(id: $id) {
-      id
-      url
-      name
-    }
-  }
-`
+
 
 const PokemonPageWithData = graphql(PokemonQuery, {
     options: (ownProps) => {
