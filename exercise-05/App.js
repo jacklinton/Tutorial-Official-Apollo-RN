@@ -9,6 +9,7 @@ import AddPokemonCard from './components/AddPokemonCard'
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({ uri: 'https://api.graph.cool/simple/v1/cj1eeauwv4suh019801wxy297'}),
+  dataIdFromObject: o => o.id,
 })
 
 const scenes = Actions.create(

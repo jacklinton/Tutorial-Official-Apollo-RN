@@ -9,8 +9,9 @@ import { Actions } from 'react-native-router-flux'
 class AddPokemonCard extends React.Component {
 
   static propTypes = {
-
+    mutate: React.PropTypes.func.isRequired,
   }
+
 
   state = {
     name: '',
@@ -93,9 +94,28 @@ class AddPokemonCard extends React.Component {
     return this.state.name && this.state.url
   }
 
-  handleSave = () => {
+  handleSave = async () => {
+    const {name, url} = this.state
+    const trainerId = this.props.trainerId
+    await this.props.mutate({variables: {name, url, trainerId}})
 
+    Actions.pokedex()
   }
+
 }
 
-export default AddPokemonCard
+const createPokemonMutation = gql`
+  mutation createPokemon($name: String!, $url: String!, $trainerId: ID) {
+    createPokemon(name: $name, url: $url, trainerId: $trainerId) {
+      trainer {
+        id
+        ownedPokemons {
+          id
+        }
+      }
+    }
+  }
+`
+const AddPokemonCardWithMutation = graphql(createPokemonMutation)(AddPokemonCard)
+
+export default AddPokemonCardWithMutation

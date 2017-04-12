@@ -3,6 +3,8 @@ import { graphql } from 'react-apollo'
 import { ScrollView, View, Image } from 'react-native'
 import gql from 'graphql-tag'
 import CustomText from './CustomText'
+import Button from './Button'
+import {Actions} from 'react-native-router-flux'
 
 import PokemonPreview from './PokemonPreview'
 
@@ -64,22 +66,31 @@ class Pokedex extends React.Component {
             )}
           </View>
         </ScrollView>
+        <Button
+          title='Add Pokemon'
+          onPress={() => {
+            const trainerId = this.props.data.Trainer.id
+            Actions.createPokemon({trainerId})
+          }}
+        />
       </View>
     )
   }
 }
 
-const TrainerQuery = gql`query TrainerQuery($name: String!) {
-  Trainer(name: $name) {
-    id
-    name
-    ownedPokemons {
+const TrainerQuery = gql`
+  query TrainerQuery($name: String!) {
+    Trainer(name: $name) {
       id
       name
-      url
+      ownedPokemons {
+        id
+        name
+        url
+      }
     }
   }
-}`
+`
 
 const PokedexWithData = graphql(TrainerQuery, {
   options: {
